@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
-# import logging
 import time
 import subprocess 
 from multiprocessing import Pool
-import shutil
+from pathlib import Path
 # import logging
 
 from loguru import logger
@@ -27,6 +26,9 @@ windows 与 linux 多进程方式有差异;
 
 class LocalRun:
     def __init__(self,cmd_file,wkdir,name,split_method,unit_num,log_prefix) -> None:
+        self.cmd_file = Path(cmd_file)
+        self.wkdir = wkdir
+        self.name = name
 
         self.tool = Tools(cmd_file,wkdir,name)
 
@@ -48,9 +50,7 @@ class LocalRun:
     def single_job(self,cmd_tuple,job):
         '''
         运行单个job
-        '''
-        undo_list = []
-        
+        '''  
         cmd = f"sh {job} 1>{job}.std 2>{job}.err && touch {job}.done"
         if job_state(job):                       # xxx.done 存在时，则跳过不允许任务
             logger.info("# Attention cmd sikpped! due to %s exisit" % (job))
@@ -77,12 +77,25 @@ class LocalRun:
             pool.apply_async(self.single_job,args=(cmd_tuple,job,))
         pool.close()
         pool.join()
+    
+    def check(self):
+        '''
+        检查任务完成情况
+        '''
+        all_cmds_num = len(self.cmds_list)
+        all_jobs_num = len(self.jobs_dict)
 
+        sub_dir = Path(self.tool.sub_dir)  # xxx.run dir 
+        tmp_dir = Path(self.tool.tmp_dir)  # xxx.run/.TMP_DIR dir 
+        
+        jobs_done_num = len(list(sub_dir.glob(f"{self.name}.*.done")))
+        cmds_done_num = len(list(tmp_dir.glob(f"sub.*.done")))
 
-
-# if __name__ == "__main__":
-#     # logger_instance = Logger('./my_log_file.log')
-#     # logger = logger_instance.logger  # 获取配置好的 logger
-#     shutil.rmtree("../tests/tmp.cmd.run")
-#     local_run = LocalRun("../tests/tmp.cmd")
-#     local_run.run(2)
+        if jobs_done_num == all_jobs_num and cmds_done_num == all_cmds_num:
+            logger.info("Congratulations, all cmds have been completed!")
+            Path(f"{self.wkdir}/{self.cmd_file.name}.Success").touch()
+        else:
+            logger.error(f"Attention! Some cmds[{cmds_done_num}/{all_cmds_num}] did not run successfully!")
+            logger.error(f"Please check the unfinished cmds log : {Path(self.log_prefix).absolute()}.cmds.log")
+            Path(f"{self.wkdir}/{self.cmd_file.name}.Failure").touch()
+        

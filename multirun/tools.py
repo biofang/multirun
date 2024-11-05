@@ -11,11 +11,18 @@ class Tools:
         self.wkdir = wkdir
         self.name = name
 
-        # self.wkdir = self.file.resolve().parent
         self.filename =  self.file.name
 
-        self.cmds_list = self._get_cmds()   # all cmds list 
-        self.sub_dir,self.tmp_dir = self._sub_dir()      # sub cmds output dir and tmp dir
+        self.cmds_list = self._get_cmds()                # all cmds list 
+        self._sub_dir,self._tmp_dir = self._get_dir()      # sub cmds output dir and tmp dir
+
+    @property
+    def sub_dir(self):
+        return self._sub_dir
+    
+    @property
+    def tmp_dir(self):
+        return self._tmp_dir
 
     def _get_cmds(self):
         cmds_lst = []
@@ -27,7 +34,7 @@ class Tools:
                 cmds_lst.append(line)
         return cmds_lst
 
-    def _sub_dir(self):
+    def _get_dir(self):
         '''
         Subcommand output directory
         '''
@@ -50,13 +57,13 @@ class Tools:
         jobs_dict = {}
         cmds_num = len(self.cmds_list)
 
-        if cmds_num % line_num == 0:            # 能整除
-            job_nums = int(cmds_num / line_num) # 任务数 
+        if cmds_num % line_num == 0:              # 能整除
+            job_nums = int(cmds_num / line_num)   # 任务数 
         else: 
             job_nums = int(cmds_num / line_num) + 1
         width = len(str(job_nums))
         for i in range(job_nums):
-            sub_file = f"{self.sub_dir}/{self.name}.{str(i+1).zfill(width)}.sh"
+            sub_file = f"{self._sub_dir}/{self.name}.{str(i+1).zfill(width)}.sh"
             with open(sub_file,"w") as outf:
                 cmd_num_list = []
                 outf.write("set -e\necho start at time `date +%F'  '%H:%M:%S`\n")
@@ -64,8 +71,8 @@ class Tools:
                 for j in range(i*line_num,(i+1)*line_num):
                     if j < cmds_num:
                         cmd_num_list.append(j)
-                        outf.write(f"{self.cmds_list[j]} && touch \"{self.tmp_dir}/sub.{j}.done\"\n")
-                outf.write(f"touch \"{self.sub_dir}/{self.name}.{str(i+1).zfill(width)}.sh.done\"\n")
+                        outf.write(f"{self.cmds_list[j]} && touch \"{self._tmp_dir}/sub.{j}.done\"\n")
+                outf.write(f"touch \"{self._sub_dir}/{self.name}.{str(i+1).zfill(width)}.sh.done\"\n")
                 outf.write("echo finish at time `date +%F'  '%H:%M:%S`\n")
             jobs_dict[tuple(cmd_num_list)] = sub_file
         return jobs_dict
@@ -81,15 +88,15 @@ class Tools:
         width = len(str(part_num))
         for i in range(part_num):
             cmd_num_list = []
-            sub_file = f"{self.sub_dir}/{self.name}.{str(i+1).zfill(width)}.sh"
+            sub_file = f"{self._sub_dir}/{self.name}.{str(i+1).zfill(width)}.sh"
             with open(sub_file,"w") as outf:
                 outf.write("set -e\necho start at time `date +%F'  '%H:%M:%S`\n")
                 outf.write(f"cd \"{self.wkdir}\"\n")
                 for j in range(i*line_num,(i+1)*line_num):
                     if j < cmds_num:
                         cmd_num_list.append(j)
-                        outf.write(f"{self.cmds_list[j]} && touch \"{self.tmp_dir}/sub.{j}.done\"\n")
-                outf.write(f"touch \"{self.sub_dir}/{self.name}.{str(i+1).zfill(width)}.sh.done\"\n")
+                        outf.write(f"{self.cmds_list[j]} && touch \"{self._tmp_dir}/sub.{j}.done\"\n")
+                outf.write(f"touch \"{self._sub_dir}/{self.name}.{str(i+1).zfill(width)}.sh.done\"\n")
                 outf.write("echo finish at time `date +%F'  '%H:%M:%S`\n")
             jobs_dict[tuple(cmd_num_list)] = sub_file
         return jobs_dict

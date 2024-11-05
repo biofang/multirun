@@ -15,3 +15,7 @@ dist/
 /*.run/
 
 *_old
+
+*Failure
+
+*Success
