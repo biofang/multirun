@@ -40,6 +40,7 @@ class LocalRun:
 
         self.log_prefix = log_prefix
 
+        # set logger 
         setup_logger(self.log_prefix)
 
         logger.info(f"LocalRun initialized with command file: {cmd_file}")
@@ -58,12 +59,12 @@ class LocalRun:
             signal = subprocess.call(cmd, shell=True)
             if signal == 0 :  
                 # 信号为0,仅说明job从头运行到尾,且结尾无报错;job里面的cmd也可能是运行错误的,；
-                logger.bind(Job=True).info(f"Job Done!\t{spend_time(start_time,time.time())}\t{job}")
+                logger.info(f"Job Done!\t{spend_time(start_time,time.time())}\t{job}")
             else :
                 logger.error(f"Job Fail!\t{spend_time(start_time,time.time())}\t{job}")
-            undo_list = check_cmd(cmd_tuple,job,self.cmds_list)
-            if undo_list:
-                for undo_cmd in undo_list:
+            undo_cmds = check_cmd(cmd_tuple,job,self.cmds_list)
+            if undo_cmds:
+                for undo_cmd in undo_cmds:
                     logger.bind(CmdError=True).error(f"{undo_cmd}")
     
     def run(self,parallel_num):
@@ -76,6 +77,8 @@ class LocalRun:
             pool.apply_async(self.single_job,args=(cmd_tuple,job,))
         pool.close()
         pool.join()
+
+
 
 # if __name__ == "__main__":
 #     # logger_instance = Logger('./my_log_file.log')

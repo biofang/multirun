@@ -42,7 +42,6 @@ def local_run(
     local_run = LocalRun(cmd_file,wkdir,name,split_method,unit_num,cmd_stem)
     local_run.run(process_num)
 
-
 @app.callback(invoke_without_command=True, no_args_is_help=True)
 def main(
         version: bool = typer.Option(False, '--version', '-v', help='Show version informatio.'),
