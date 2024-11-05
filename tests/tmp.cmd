@@ -1,0 +1,10 @@
+slep daf50s && echo 1 >> out.log
+sleep 4s && echo 2 >> out.log
+sleep 4s && echo 3 >> out.log
+s33leep 4s && echo 4 >> out.log
+sleep 4s && echo 5 >> out.log
+sleep 4s && echo 6 >> out.log
+sleep 4s && echo 7 >> out.log
+sleep 4s && echo 8 >> out.log
+sleep 4s && echo 9 >> out.log
+sleep 4s && echo 10 >> out.log

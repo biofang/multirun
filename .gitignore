@@ -1,0 +1,17 @@
+# 忽略*log文件
+*.log  
+
+**/__pycache__
+dist/
+
+# virtualenv
+.venv
+
+.vscode/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+/*.run/
+
+*_old
