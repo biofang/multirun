@@ -10,13 +10,13 @@ def setup_logger(prefix):
     # 打印到屏幕中
     logger.add(sys.stderr, level="DEBUG", format= time_format + " | {level} | {message}",enqueue=True)
 
-    # job日志
-    logger.add(f"{prefix}.job.log", level="INFO", format= time_format + " | {level} | {message}",
+    # job 日志
+    logger.add(f"{prefix}.jobs.log", level="INFO", format= time_format + " | {level} | {message}",
                filter=lambda record: "CmdError" not in record["extra"],   
                enqueue=True)
 
-    # cmd错误日志
-    logger.add(f"{prefix}.cmd.log", level="ERROR", format="{message}",
+    # cmd 错误日志
+    logger.add(f"{prefix}.cmds.log", level="ERROR", format="{message}",
                filter=lambda record: "CmdError" in record["extra"],
                enqueue=True)
 

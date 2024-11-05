@@ -22,17 +22,17 @@ Logger
 需要建立两套日志，一套用于输出jobs日志信息，另一套用于error级别的cmd，方便后续查看；
 
 # 注意
-windows 与 linux 多进程方式有差异
+windows 与 linux 多进程方式有差异;
 '''
 
 class LocalRun:
-    def __init__(self,cmd_file,split_method,unit_num,log_prefix) -> None:
+    def __init__(self,cmd_file,wkdir,name,split_method,unit_num,log_prefix) -> None:
 
-        self.tool = Tools(cmd_file)
+        self.tool = Tools(cmd_file,wkdir,name)
 
-        # self.jobs_dict = self.tool.split_cmds_by_lines(2)
         self.cmds_list = self.tool.cmds_list
 
+        # get split mthod line or part;
         if split_method == "line":
             self.jobs_dict = self.tool.split_cmds_by_lines(unit_num)
         else:
@@ -51,7 +51,7 @@ class LocalRun:
         undo_list = []
         
         cmd = f"sh {job} 1>{job}.std 2>{job}.err && touch {job}.done"
-        if job_state(job):          # xxx.done 存在时，则跳过不允许任务
+        if job_state(job):                       # xxx.done 存在时，则跳过不允许任务
             logger.info("# Attention cmd sikpped! due to %s exisit" % (job))
         else:
             start_time = time.time()
