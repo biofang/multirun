@@ -3,14 +3,21 @@ from pathlib import Path
 from enum import Enum
 
 import typer
+from click import Context
+from typer.core import TyperGroup
 
 from local import LocalRun
 
 __version__ = "0.0.1"
 
-CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
-app = typer.Typer(help='''A Simple Parallel Cli Tool on Linux Platforms''',
-                  context_settings=CONTEXT_SETTINGS, add_completion=False)
+class OrderCommands(TyperGroup):
+  def list_commands(self, ctx: Context):
+    return list(self.commands)
+
+app = typer.Typer(
+                cls=OrderCommands,
+                help='''A Simple Parallel Cli Tool on Linux Platforms''',
+                context_settings=dict(help_option_names=["-h", "--help"]), add_completion=False,)
 
 class SplitMethod(str,Enum):
     line = "line",
@@ -47,7 +54,7 @@ def local_run(
     local_run.run(process_num)
     local_run.check()
 
-@app.command(name="clean",no_args_is_help=True,help="Local Run")
+@app.command(name="clean",no_args_is_help=True,help="clean up log file and tmp dir")
 def clean_fun(
     cmd_file: Path = typer.Argument(..., help="Input cmds file."), 
     wkdir: Path = typer.Option(Path("./"),"--workdir","-w",help="The work dir."),
