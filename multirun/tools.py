@@ -66,14 +66,15 @@ class Tools:
             sub_file = f"{self._sub_dir}/{self.name}.{str(i+1).zfill(width)}.sh"
             with open(sub_file,"w") as outf:
                 cmd_num_list = []
-                outf.write("set -e\necho start at time `date +%F'  '%H:%M:%S`\n")
+                outf.write("set -e\necho start at time $(date +%F' '%H:%M:%S)\n")
                 outf.write(f"cd \"{self.wkdir}\"\n")
                 for j in range(i*line_num,(i+1)*line_num):
                     if j < cmds_num:
                         cmd_num_list.append(j)
                         outf.write(f"{self.cmds_list[j]} && touch \"{self._tmp_dir}/sub.{j}.done\"\n")
                 outf.write(f"touch \"{self._sub_dir}/{self.name}.{str(i+1).zfill(width)}.sh.done\"\n")
-                outf.write("echo finish at time `date +%F'  '%H:%M:%S`\n")
+                # outf.write("echo finish at time `date +%F'  '%H:%M:%S`\n")
+                outf.write("echo finish at time $(date +%F' '%H:%M:%S)")
             jobs_dict[tuple(cmd_num_list)] = sub_file
         return jobs_dict
 
@@ -90,14 +91,14 @@ class Tools:
             cmd_num_list = []
             sub_file = f"{self._sub_dir}/{self.name}.{str(i+1).zfill(width)}.sh"
             with open(sub_file,"w") as outf:
-                outf.write("set -e\necho start at time `date +%F'  '%H:%M:%S`\n")
+                outf.write("set -e\necho start at time $(date +%F' '%H:%M:%S)\n")
                 outf.write(f"cd \"{self.wkdir}\"\n")
                 for j in range(i*line_num,(i+1)*line_num):
                     if j < cmds_num:
                         cmd_num_list.append(j)
                         outf.write(f"{self.cmds_list[j]} && touch \"{self._tmp_dir}/sub.{j}.done\"\n")
                 outf.write(f"touch \"{self._sub_dir}/{self.name}.{str(i+1).zfill(width)}.sh.done\"\n")
-                outf.write("echo finish at time `date +%F'  '%H:%M:%S`\n")
+                outf.write("echo finish at time $(date +%F' '%H:%M:%S)\n")
             jobs_dict[tuple(cmd_num_list)] = sub_file
         return jobs_dict
 

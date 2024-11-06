@@ -17,7 +17,8 @@ class OrderCommands(TyperGroup):
 app = typer.Typer(
                 cls=OrderCommands,
                 help='''A Simple Parallel Cli Tool on Linux Platforms''',
-                context_settings=dict(help_option_names=["-h", "--help"]), add_completion=False,)
+                context_settings=dict(help_option_names=["-h", "--help"]), 
+                add_completion=False,)
 
 class SplitMethod(str,Enum):
     line = "line",
@@ -33,7 +34,7 @@ def local_run(
     unit_num: int = typer.Option(1,"--unit_num","-un",help = """Split by line, the number of lines in each job,
                                 or split by part, the total number of parts"""),                                   # 切分子文件内，或者份数
     process_num: int = typer.Option(4,"--process_num","-pn",help="Maximum number of local parallel jobs."),        # 进程数 
-    force :  bool = typer.Option(False,"-f/-nf","--force/--not-force",help= "froce check for the cmd done file"),
+    force :  bool = typer.Option(False,"-f/-nf","--force/--not-force",help= "froce check for the cmd done file."),
     ):
 
     cmd_path = Path(cmd_file)
@@ -54,22 +55,22 @@ def local_run(
     local_run.run(process_num)
     local_run.check()
 
-@app.command(name="clean",no_args_is_help=True,help="clean up log file and tmp dir")
+@app.command(name="clean",no_args_is_help=True,help="Clean log files and temporary directories")
 def clean_fun(
     cmd_file: Path = typer.Argument(..., help="Input cmds file."), 
     wkdir: Path = typer.Option(Path("./"),"--workdir","-w",help="The work dir."),
-    cleanup: bool = typer.Option(True,"--cleanup","-c",help="Clean up sub directories and log files")
+    cleanup: bool = typer.Option(True,"--cleanup/--no-cleanup","-c/-nc",help="Clean up sub directories and log files.")
 ):
     cmd_path = Path(cmd_file)
     wkdir = Path(wkdir).absolute() # 获取目录的绝对路径
 
     if cleanup:
-        print("Clean up sub directories and log files!")
         shutil.rmtree(f"{wkdir}/{cmd_path.name}.run",ignore_errors=True)
         Path(f"{wkdir}/{cmd_path.stem}.jobs.log").unlink(missing_ok=True)
         Path(f"{wkdir}/{cmd_path.stem}.cmds.log").unlink(missing_ok=True)
         Path(f"{wkdir}/{cmd_path.name}.Success").unlink(missing_ok=True)
         Path(f"{wkdir}/{cmd_path.name}.Failure").unlink(missing_ok=True)
+        print("Successfully cleaned log files and temporary directories!")
 
 @app.callback(invoke_without_command=True, no_args_is_help=True)
 def main(
